@@ -80,6 +80,9 @@ void calculate()
     GLfloat dx = x2-x1;
     GLfloat dy = y2-y1;
 
+    cout<<"dx"<<dx<<endl;
+    cout<<"dy"<<dy<<endl;
+
     GLint steps =0;
     if(dx>dy)
         steps = dx;
@@ -87,6 +90,14 @@ void calculate()
         steps = dy;
     GLfloat xinc = dx/steps;
     GLfloat yinc = dy/steps;
+
+    if(dx<0 && dy<0)
+    {
+        steps = -steps;
+        xinc = -xinc;
+        yinc = -yinc;
+    }
+
 
     cout<<"xinc"<<xinc<<endl;
     cout<<"yinc"<<yinc<<endl;
@@ -96,6 +107,7 @@ void calculate()
     {
         x+=xinc;
         y+=yinc;
+        cout<<x<<" "<<y<<endl;
         linePoints.push_back({ceil(x),ceil(y)});
     }
     plotLine();
