@@ -1,0 +1,102 @@
+#include<windows.h>
+#include<bits/stdc++.h>
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+
+#include <stdlib.h>
+using namespace std;
+
+GLsizei winWidth = 640, winHeight = 480; // Initial display-window size.
+GLint pointCtr =0;
+
+class Point{
+  public:
+  GLint x;
+  GLint y;
+
+};
+
+
+void init (void)
+{
+   glClearColor (1.0, 1.0, 1.0, 1.0); // Set display-window color to white.
+   glMatrixMode (GL_PROJECTION);
+   gluOrtho2D (0.0, 200.0, 0.0, 150.0);
+}
+
+void displayFcn (void)
+{
+  glClear (GL_COLOR_BUFFER_BIT); // Clear display window.
+  glColor3f (1.0, 0.0, 0.0); // Set point color to red.
+  glPointSize (3.0); // Set point size to 3.0.
+}
+
+void winReshapeFcn (GLint newWidth, GLint newHeight)
+{
+/* Reset viewport and projection parameters */
+    glViewport (0, 0, newWidth, newHeight);
+    glMatrixMode (GL_PROJECTION);
+    glLoadIdentity ( );
+    gluOrtho2D (0.0, GLdouble (newWidth), 0.0, GLdouble (newHeight));
+/* Reset display-window size parameters. */
+    winWidth = newWidth;
+    winHeight = newHeight;
+}
+
+void plotLine (Point point1,Point point2)
+{
+    glColor3f (1.0, 0.0, 0.0);
+    glBegin (GL_LINES);
+    glVertex2i(point1.x,point1.y);
+    glVertex2i(point2.x,point2.y);
+    glEnd ();
+}
+
+
+void mousePtPlot (GLint button, GLint action, GLint xMouse, GLint yMouse)
+{
+   static Point point1,point2;
+   if(pointCtr ==0)
+   {
+      if (button == GLUT_LEFT_BUTTON && action == GLUT_DOWN)
+      {
+         point1.x = xMouse;
+         point1.y = yMouse;
+         pointCtr++;
+      }
+      else if(button == GLUT_RIGHT_BUTTON && action == GLUT_DOWN)
+      {
+          cout<<"Clicked left"<<endl;
+      }
+
+   }
+   else if (button == GLUT_LEFT_BUTTON && action == GLUT_DOWN)
+      {
+         point2.x = xMouse;
+         point2.y = yMouse;
+         plotLine(point1,point2);
+         //point1 = point2;
+      }
+
+  else if(button == GLUT_RIGHT_BUTTON)
+  {
+      exit(0);
+  }
+   glFlush ( );
+}
+int main (int argc, char** argv)
+{
+    glutInit (&argc, argv);
+    glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowPosition (100, 100);
+    glutInitWindowSize (winWidth, winHeight);
+    glutCreateWindow ("Mouse Plot Points");
+    init ( );
+    glutDisplayFunc (displayFcn);
+    glutReshapeFunc (winReshapeFcn);
+    glutMouseFunc (mousePtPlot);
+    glutMainLoop ( );
+}
