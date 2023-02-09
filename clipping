@@ -1,0 +1,586 @@
+#include<windows.h>
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+
+#include<vector>
+#include<iostream>
+#include <stdlib.h>
+#include<math.h>
+
+
+using namespace std;
+
+
+bool comp_max(float a, float b)
+{
+    return (a < b);
+}
+
+bool comp_min(float a, float b)
+{
+    return (a > b);
+}
+
+void init(){
+     glClearColor(1,1,1,0);
+     glMatrixMode(GL_PROJECTION);
+     glLoadIdentity();
+     gluOrtho2D(-320,320,-320,320);
+
+
+}
+
+
+class Window{
+
+    int x1,x2,y1,y2;
+    public:
+
+    void create(int x1,int y1,int x2, int y2)
+    {
+        this->x1 = x1;
+        this->y1 = y1;
+        this->x2 = x2;
+        this->y2 = y2;
+
+    }
+
+    void plot(){
+
+        int x3,y3,x4,y4;
+
+        x3 = this->x2;
+        y3 = this->y1;
+
+        x4 = this->x1;
+        y4 = this->y2;
+
+
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(x1,y1);
+        glVertex2f(x3,y3);
+        glVertex2f(x2,y2);
+        glVertex2f(x4,y4);
+    glEnd();
+    glFlush();
+
+    cout<<"\n x1 y1 = "<<this->x1<<"  "<<this->y1;
+    cout<<"\n x2 y2 = "<<this->x2<<"  "<<this->y2;
+    cout<<"\n x3 y3 = "<<x3<<"  "<<y3;
+    cout<<"\n x4 y4 = "<<x4<<"  "<<y4;
+
+    }
+
+    vector<int> windowPoints(){
+
+        int x3,y3,x4,y4;
+
+        x3 = this->x2;
+        y3 = this->y1;
+
+        x4 = this->x1;
+        y4 = this->y2;
+        vector<int> Points;
+        Points.push_back(this->x1);
+        Points.push_back(this->y1);
+        Points.push_back(this->x2);
+        Points.push_back(this->y2);
+        Points.push_back(x3);
+        Points.push_back(y3);
+        Points.push_back(x4);
+        Points.push_back(y4);
+
+        return Points;
+
+
+
+    }
+};
+Window w;
+
+
+class Line{
+
+    int x1,x2,y1,y2;
+
+public:
+    Line (int x1,int y1, int x2, int y2)
+    {
+        this->x1 = x1;
+        this->y1 = y1;
+        this->x2 = x2;
+        this->y2 = y2;
+
+
+    }
+
+
+    void plot(){
+
+      glColor3f(1.0, 0, 0.0);
+
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(x1,y1);
+        glVertex2f(x2,y2);
+    glEnd();
+    glFlush();
+
+
+
+    }
+
+
+    vector<int> linePoints(){
+
+
+        vector<int> Points;
+        Points.push_back(x1);
+        Points.push_back(y1);
+        Points.push_back(x2);
+        Points.push_back(y2);
+
+
+        return Points;
+
+    }
+
+
+
+    void liangBarsky(){
+
+    int p[4] ,q[4];
+
+    vector<int> points = w.windowPoints();
+
+    int ix1 = this->x1,iy1 = this->y1,ix2 = this->x2,iy2 = this->y2;
+
+    int delx = this->x2 - this->x1;
+    int dely = this->y2 - this->y1;
+    p[0] = -delx;
+    p[1] = delx;
+    p[2] = -dely;
+    p[3] = dely;
+
+
+    q[0] = this->x1 - points[0];
+    q[1] = points[2] - this->x1;
+    q[2] = this->y1 - points[7];
+    q[3] = points[1] - this->y1;
+
+    cout<<"\n p values\n";
+    for(int i= 0;i<4;i++)
+     {
+         cout<<" " <<p[i];
+
+     }
+
+    cout<<"\n values\n";
+    for(int i= 0;i<4;i++)
+     {
+         cout<<" " <<q[i];
+
+     }
+
+
+    for(int i= 0;i<4;i++)
+    {
+        if(p[i] == 0 && q[i] <0)
+        {
+            cout<<"trivial reject";
+             return;
+
+        }
+
+        if(p[i] == 0 && q[i] >= 0)
+
+        {
+
+            cout<<"trivial accept";
+                glColor3f(1.0, 1.0, 0.0);
+
+     glBegin(GL_LINE_LOOP);
+        glVertex2f(round(ix1),round(iy1));
+        glVertex2f(round(ix2),round(iy2));
+     glEnd();
+     glFlush();
+            return;
+        }
+
+
+
+    }
+
+    float r[4] = {0,1,0,1};
+    float t1 = 0,t2 = 1;
+
+    for(int i = 0; i<4;i++)
+    {
+
+        if(p[i] <= 0)
+        {
+             t1 = max<float>((float)q[i]/p[i],t1);
+
+        }
+
+        if(p[i] > 0)
+        {
+            t2 = min<float>((float)q[i]/p[i],t2);
+        }
+    }
+
+
+    if(t1 > t2)
+    {
+
+        return;
+    }
+
+
+    if(t1 != 0)
+    {
+
+        ix1 = this->x1 + (delx)*t1;
+        iy1 = this->y1 + dely*t1;
+
+    }
+
+    if(t2 != 1)
+    {
+
+        ix2 = this->x1 + delx*t2;
+        iy2 = this->y1 + dely*t2;
+
+
+    }
+
+    glColor3f(1.0, 1.0, 0.0);
+
+     cout<<"\n"<<this->x1<<" "<<this->y1<<"   "<<this->x2 <<"  "<<this->y2<<"\n" ;
+
+     cout<<"\n"<<ix1<<"   "<<iy1<<"   "<<ix2<<"   "<<iy2<<"\n";
+
+     glBegin(GL_LINE_LOOP);
+        glVertex2f(round(ix1),round(iy1));
+        glVertex2f(round(ix2),round(iy2));
+     glEnd();
+     glFlush();
+
+
+    }
+
+    void cohenSutherland(){
+
+    int f[4] = {0,0,0,0},s[4] = {0,0,0,0};
+
+    vector<int> points = w.windowPoints();
+
+    //tbrl
+    if(this->y1 > points[1])
+    {
+         f[0]= 1;
+    }
+
+    if(this->y1 < points[7])
+    {
+
+        f[1] = 1;
+    }
+
+    if(this->x1 > points[2])
+    {
+
+        f[2] = 1;
+    }
+
+    if(this->x1 < points[0])
+    {
+
+        f[3] = 1;
+    }
+
+    if(this->y2 < points[7])
+    {
+        s[1] = 1;
+    }
+
+    if(this->y2 > points[1])
+    {
+
+        s[0] = 1;
+    }
+
+    if(this->x2 > points[2])
+    {
+
+        s[2] = 1;
+    }
+
+    if(this->x2 < points[0])
+    {
+
+        s[3] = 1;
+    }
+
+
+    bool trivialReject = false, trivialAccept = true;
+
+    for(int i = 0; i < 4; i++)
+    {
+        if(f[i] == 1 || s[i] == 1)
+        {
+            trivialAccept = false;
+        }
+
+        if(f[i] == 1 && s[i] == 1)
+        {
+
+            trivialReject  = true;
+        }
+    }
+
+    if(trivialAccept){
+
+    cout<<"trivial Accept";
+
+    glColor3f(1.0, 1.0, 0.0);
+
+     glBegin(GL_LINE_LOOP);
+        glVertex2f(this->x1,this->y1);
+        glVertex2f(this->x2,this->y2);
+    glEnd();
+
+    glFlush();
+
+    return;
+    }
+
+    if(trivialReject){
+        cout<<"trivial Reject";
+        return;
+    }
+
+
+    float m = (float)(this->y2 - this->y1)/(this->x2 - this->x1);
+
+    cout<<"\n\npoints : "<<this->y2 <<"  " <<this->y1<<" "<<this->x2<<"  "<< this->x1<<"\n\n";
+    cout<<"slope" <<"  "<<m <<"\n";
+
+    int ix1 = this->x1,iy1 = this->y1,ix2 = this->x2,iy2 = this->y2;
+
+
+    if(f[3] == 1)
+    {
+
+        ix1 = points[0];
+        iy1 = m*(ix1 - this->x1) + this->y1;
+
+        cout<<"\n\ninside left\n\n";
+
+    }
+
+    if(f[2] == 1)
+    {
+        ix1 = points[2];
+        iy1 = m*(ix1 - this->x1) + this->y1;
+        cout<<"\n\ninside right\n\n";
+
+
+    }
+
+    if(f[0] == 1)
+    {
+
+        iy1 = points[1];
+        cout<<" \n\n" << iy1<<"  "<< this->y1 <<"  "<<m<<"  "<<this->x1<<"\n\n";
+        ix1 = ( iy1- this->y1)/m  + this->x1;
+        cout<<"\n inside top   "<<iy1<< "  "<<ix1<<"\n";
+    }
+
+    if(f[1] == 1)
+    {
+
+        iy1 = points[7];
+        ix1 = (iy1 - this->y1)/m + this->x1;
+        cout<<"\n\ninside bottom\n\n";
+    }
+
+
+
+    if(s[3] == 1)
+    {
+
+     ix2 = points[0];
+     iy2 = m*(ix2 - this->x2) + this->y2;
+     cout<<"\n\ninside left\n\n";
+
+    }
+
+    if(s[2] == 1)
+    {
+        ix2 = points[2];
+        iy2 = m*(ix2 - this->x2) + this->y2;
+        cout<<"\n\ninside right\n\n";
+
+    }
+
+    if(s[0] == 1)
+    {
+
+        iy2 = points[1];
+        ix2 = (iy2- this->y2)/m  + this->x2;
+        cout<<"\n\ninside top\n\n";
+    }
+
+    if(s[1] == 1)
+    {
+
+        iy2 = points[7];
+        ix2 = (iy2 - this->y2)/m + this->x2;
+        cout<<"\n\ninside bottom\n\n";
+    }
+
+     glColor3f(1.0, 1.0, 0.0);
+
+     cout<<"\n"<<this->x1<<" "<<this->y1<<"   "<<this->x2 <<"  "<<this->y2<<"\n" ;
+
+     cout<<"\n"<<ix1<<"   "<<iy1<<"   "<<ix2<<"   "<<iy2<<"\n";
+
+     glBegin(GL_LINE_LOOP);
+        glVertex2f(round(ix1),round(iy1));
+        glVertex2f(round(ix2),round(iy2));
+     glEnd();
+     glFlush();
+
+
+
+
+    }
+
+
+
+
+};
+vector<Line> lines;
+
+
+static void display(void)
+{
+    //glClear(GL_COLOR_BUFFER_BIT );
+
+    glColor3f(1.0, 0.0, 0.0);
+    glPointSize(10);
+
+
+     glFlush();
+}
+
+
+void mouseHandler(int button, int state, int mouse_x, int mouse_y)
+{
+    static int count = 0;
+    static int x1,x2,y1,y2;
+
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+
+        int x = mouse_x - 320;
+        int y = 640 - mouse_y - 320;
+
+        //cout<<count;
+
+        if(count == 0)
+        {
+
+            x1 = x;
+            y1 = y;
+            count ++;
+
+
+        }
+
+        else if(count == 1)
+        {
+            x2 = x;
+            y2 = y;
+            count++;
+
+            w.create(x1,y1,x2,y2);
+
+            w.plot();
+        }
+
+        else if(count%2 == 0)
+
+        {
+
+            x1 = x;
+            y1 = y;
+            count++;
+
+
+        }
+        else{
+            x2 = x;
+            y2 = y;
+            count++;
+
+            cout<<"\nline points \n "<<x1<<"  "<<y1<<" "<<x2<<"  "<<y2<<"  ";
+            Line line(x1,y1,x2,y2);
+            line.plot();
+
+            lines.push_back(line);
+            line.liangBarsky();
+
+        }
+        glFlush();
+
+    }
+
+    else if (button == GLUT_RIGHT_BUTTON  )
+    {
+        cout<<"pressed right";
+
+    }
+
+
+}
+
+static void key(unsigned char key, int x, int y)
+{
+
+    if(key == 'c')
+    {
+
+
+    }
+
+    else if (key == 'l')
+    {
+
+
+    }
+
+
+}
+int main(int argc, char *argv[])
+{
+    glutInit(&argc, argv);
+    glutInitWindowSize(640,640);
+    glutInitWindowPosition(10,10);
+    glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+
+    glutCreateWindow("transform");
+
+    init();
+
+    glutDisplayFunc(display);
+    glutMouseFunc(mouseHandler);
+    glutKeyboardFunc(key);
+
+    glutMainLoop();
+
+    return EXIT_SUCCESS;
+}
