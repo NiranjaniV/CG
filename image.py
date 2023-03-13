@@ -6,6 +6,16 @@ from skimage.exposure import match_histograms
 from PIL import Image
 from numpy import asarray
 
+def sobel(image):
+    grayImage = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    cv2.imshow('Gray Image',grayImage)
+    cv2.waitKey(0)
+    image_blur = cv2.GaussianBlur(grayImage,(3,3),0)
+    after_sobel_image = cv2.Sobel(src=image_blur,ddepth = cv2.CV_64F,dx=1,dy=0,ksize=5)
+    cv2.imshow('Sobel Image',after_sobel_image)
+    cv2.waitKey(0)
+
+
 def canny_filter(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     image_blur = cv2.GaussianBlur(gray,(3,3),0)
@@ -42,6 +52,7 @@ def blackAndWhite(image):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+# Low pass and high pass are frequency filters
 def lowPass(image):
     kernel = np.array([[1,1,1,1,1],[1,1,1,1,1],[1,1,1,1,1],[1,1,1,1,1],[1,1,1,1,1]])
     img = cv2.filter2D(image,-1,kernel/sum(kernel))
@@ -80,5 +91,55 @@ def neg_imag():
     image = Image.fromarray(data)
     image.save('NegativeTiger.jpg')
 
-#image = cv2.imread('D:\SEMESTER\SIXTH SEMESTER\Computer Visualisation\CG LAB\cat.jpg')
-neg_imag()
+#These are spatial filters
+
+def mean(image):
+    mean_image = cv2.blur(image,(3,3))
+    cv2.imshow('Mean filtered',mean_image)
+    cv2.waitKey(0)
+
+def median(image):
+    median_image = cv2.medianBlur(image,5)
+    cv2.imshow('Median Blur',median_image)
+    cv2.waitKey(0)
+
+def sharpening(image):
+    kernel= np.array([[-1,-1,-1],[-1,9,-1],[-1,-1,-1]])
+    sharpened_image =cv2.filter2D(image,-1,kernel)
+    cv2.imshow('Sharpened Image',sharpened_image)
+    cv2.waitKey(0)
+
+def erosion(image):
+    kernel=np.ones((5,5),np.uint8)
+    eroded_image = cv2.erode(image,kernel,iterations=1)
+    cv2.imshow('Eroded Image',eroded_image)
+    cv2.waitKey(0)
+
+def dilation(image):
+    kernel =np.ones((5,5),np.uint8)
+    dilated_image=cv2.dilate(image,kernel,iterations=1)
+    cv2.imshow('Dilated Image',dilated_image)
+    cv2.waitKey(0)
+
+def opening(image):
+    kernel =np.ones((5,5),np.uint8)
+    opening_image=cv2.morphologyEx(image,cv2.MORPH_OPEN,kernel,iterations=1)
+    cv2.imshow('Opening Image',opening_image)
+    cv2.waitKey(0)
+
+def closing(image):
+    kernel=np.ones((5,5),np.uint8)
+    closing_image=cv2.morphologyEx(image,cv2.MORPH_CLOSE,kernel,iterations=1)
+    cv2.imshow('Closing Image',closing_image)
+    cv2.waitKey(0)
+
+def hitMiss(image):
+    kernel=np.array(([1,1,1],[0,1,-1],[0,1,-1]),dtype = "int")
+    grayImage=cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    hitMissImage=cv2.morphologyEx(grayImage,cv2.MORPH_HITMISS,kernel,iterations=1)
+    cv2.imshow('Hit Miss Image',hitMissImage)
+    cv2.waitKey(0)
+
+
+image = cv2.imread('D:\SEMESTER\SIXTH SEMESTER\Computer Visualisation\CG LAB\closing.jpg')
+hitMiss(image)
