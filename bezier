@@ -1,0 +1,122 @@
+#include<windows.h>
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+#include<vector>
+#include<iostream>
+#include <stdlib.h>
+using namespace std;
+
+
+
+int wx = 640;
+int wy = 480;
+
+class Point{
+    public:
+    float x;
+    float y;
+    Point(){
+        x = 0.0;
+        y=0.0;
+    }
+    Point(float xx,float yy){
+        x = xx;
+        y = yy;
+    }
+};
+
+vector<Point> curvePoints;
+vector<Point> controlPoints;
+
+
+void init(){
+    glClearColor(1,1,1,0);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0,640,0,480);
+}
+
+
+void display(){
+    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.0,0.0,0.0,1);
+}
+
+void drawCurve(){
+    glColor3f(0.0,1.0,0.0);
+    glLineWidth(3);
+    glBegin(GL_LINE_STRIP);
+    for(int i=0;i<curvePoints.size()-1;i++){
+        glVertex2f(curvePoints[i].x,curvePoints[i].y);
+        glVertex2f(curvePoints[i+1].x,curvePoints[i+1].y);
+    }
+    glEnd();
+    glFlush();
+}
+
+void estimatePoints(){
+    float parameter = 0;
+    int c=0;
+    while(c!=10){
+        float x = (1-parameter)*(1-parameter)*(1-parameter)*controlPoints[0].x + 3*(1-parameter)*(1-parameter)*parameter*controlPoints[1].x + 3*(1-parameter)*parameter*parameter*controlPoints[2].x+parameter*parameter*parameter*controlPoints[3].x;
+        float y = (1-parameter)*(1-parameter)*(1-parameter)*controlPoints[0].y + 3*(1-parameter)*(1-parameter)*parameter*controlPoints[1].y + 3*(1-parameter)*parameter*parameter*controlPoints[2].y+parameter*parameter*parameter*controlPoints[3].y;
+        Point p(x,y);
+        curvePoints.push_back(p);
+        parameter+=0.1;
+        cout<<"points: "<<p.x<<" "<<p.y<<" "<<parameter<<endl;
+        c++;
+
+    }
+    glFlush();
+}
+
+void drawPoint(int x,int y){
+    glColor3f(1.0,0.0,0.0);
+    glPointSize(3);
+    glBegin(GL_POINTS);
+    glVertex2d(x,y);
+    glEnd();
+    glFlush();
+}
+
+void pointInput(int button, int state, int _x,int _y){
+    int x = _x;
+    int y = wy-_y;
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && controlPoints.size()<=4){
+        Point p(x,y);
+        controlPoints.push_back(p);
+        cout<<p.x<<endl;
+        cout<<p.y<<endl;
+        drawPoint(x,y);
+    }
+    if(controlPoints.size()==4){
+        estimatePoints();
+        drawCurve();
+        controlPoints.clear();
+        curvePoints.clear();
+    }
+    glFlush();
+}
+
+
+
+/* Program entry point */
+
+int main(int argc, char *argv[])
+{
+    glutInit(&argc, argv);
+    glutInitWindowSize(640,480);
+    glutInitWindowPosition(10,10);
+    glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+
+    glutCreateWindow("BEZIER CURVE");
+    init();
+    glutDisplayFunc(display);
+    glutMouseFunc(pointInput);
+    glutMainLoop();
+
+    return EXIT_SUCCESS;
+}
