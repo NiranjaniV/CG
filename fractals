@@ -1,0 +1,149 @@
+****************************TREE**********************
+import turtle
+
+MINIMUM_LENGTH = 5
+
+def build_tree(t,angle,length,shorten_by):
+    if length > MINIMUM_LENGTH:
+        t.forward(length)
+        nlength = length - shorten_by
+        t.left(angle)
+        build_tree(t, angle, nlength, shorten_by)
+
+        t.right(angle*2)
+        build_tree(t, angle, nlength, shorten_by)
+
+        t.left(angle)
+        t.backward(length)
+    return
+tree = turtle.Turtle()
+tree.hideturtle()
+tree.setheading(90)
+tree.color('green')
+
+build_tree(tree, 30,50, 5)
+turtle.mainloop()
+
+*******************************SNOWFLAKE***********************
+import turtle
+
+def koch_snowflake(t,length,levels):
+    if levels == 0:
+        t.forward(length)
+        return
+    else:
+        length = length/3
+
+        koch_snowflake(t, length, levels-1)
+        t.left(60)
+        koch_snowflake(t, length, levels-1)
+
+        t.right(120)
+        koch_snowflake(t, length, levels-1)
+
+        t.left(60)
+        koch_snowflake(t, length, levels-1)
+t = turtle.Turtle()
+t.hideturtle()
+t.color('black')
+
+for i in range(3):
+    koch_snowflake(t, 200, 4)
+    t.right(120)
+t.mainloop()
+
+******************C CURVE******************8
+import turtle
+def c_curve(t,length,levels):
+    if levels == 0:
+        t.forward(length)
+        return
+    else:
+        nlength = length/2
+
+        t.right(45)
+        c_curve(t, nlength, levels-1)
+
+        t.left(90)
+        c_curve(t, nlength, levels-1)
+
+        t.right(45)
+turtle.TurtleScreen._RUNNING=True
+t = turtle.Turtle()
+scrn = turtle.Screen()
+t.hideturtle()
+c_curve(t, 1000, 7)
+scrn.exitonclick()
+
+*********************** DRAGON************************
+import turtle
+
+def f(toy,length,levels):
+    if levels==0:
+        toy.forward(length)
+        return
+    f(toy,length,levels-1)
+    f(toy, length, levels - 1)
+    toy.left(90)
+    f(toy, length, levels - 1)
+    toy.left(90)
+    f(toy, length, levels - 1)
+    toy.left(90)
+    f(toy, length, levels - 1)
+    toy.left(90)
+    f(toy, length, levels - 1)
+    toy.left(90)
+    f(toy, length, levels - 1)
+    toy.right(90)
+    f(toy, length, levels - 1)
+def L(toy,length,levels):
+    if levels == 0:
+        toy.forward(length)
+        return
+    f(toy, length, levels - 1)
+    toy.left(90)
+    f(toy, length, levels - 1)
+    toy.left(90)
+
+screen = turtle.Screen()
+screen.bgcolor('black')
+toy = turtle.Turtle()
+toy.speed(0)
+toy.color('green')
+#toy.forward(100)
+L(toy,50,5)
+turtle.done()
+turtle.exitonclick()
+
+**********************SIERPINSKI*********************
+import turtle
+
+def B(toy,length,levels):
+    if levels==0:
+        toy.forward(length)
+        return
+    A(toy,length,levels-1)
+    toy.left(60)
+    B(toy,length,levels-1)
+    toy.left(60)
+    A(toy,length,levels-1)
+
+def A(toy,length,levels):
+    if levels == 0:
+        toy.forward(length)
+        return
+    B(toy,length,levels-1)
+    toy.right(60)
+    A(toy,length,levels-1)
+    toy.right(60)
+    B(toy,length,levels-1)
+
+screen = turtle.Screen()
+screen.bgcolor('black')
+toy = turtle.Turtle()
+toy.speed(0)
+toy.color('green')
+#toy.forward(100)
+A(toy,5,10)
+turtle.done()
+turtle.exitonclick()
